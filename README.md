@@ -1,4 +1,4 @@
 Leo
 ===
 
-Bot para irc
+Bot para irc en python

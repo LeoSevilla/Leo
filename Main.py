@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 import socket
 
 HOST = "irc.chathispano.com"
@@ -6,36 +7,82 @@ PORT = 6667
 NICK = "BotPy"
 IDENT = "mi_ident"
 REALNAME = "Mi nombre real"
-CHANNEL = "#coach"
+CHANNELS = ['#aaabbb', '#coach']
+
+# Class Irc --------------------------------------------------------------------
 
 
-irc = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+class Irc():
 
-print("connecting to: "+HOST)
-irc.connect((HOST, PORT))
+    socket = None
+    connected = False
+    channels = []
+    nickname = ""
+
+# Metodo constructor -----------------------------------------------------------
+
+    def __init__(self, host, port, nick, ident, realname, canales):
+        self.socket = socket.socket()
+        self.socket.connect((host, port))
+        self.channels = canales
+        self.nickname = nick
+        self.send("NICK %s" % nick)
+        self.send("USER "+ident+" "+host+" BLA "+realname)
+
+        opcion = True
+        while opcion == True:  # noqa: E712
+
+            buf = self.socket.recv(4096).decode()
+            if buf == '':
+                continue
+            print("<<<", buf)
+
+            if buf.find('PING') != -1:
+                n = buf.split(':')[1]
+                self.send('PONG :' + n)
+                if self.connected == False:  # noqa: E712
+                    self.connected = True
+                    opcion = False
+
+# Metodo demonio ---------------------------------------------------------------
+
+    def demonio(self):
+        while True:
+            buf = self.socket.recv(4096).decode()
+            if buf == '':
+                continue
+            print("<<<", buf)
+            # server ping/pong?
+            if buf.find('PING') != -1:
+                n = buf.split(':')[1]
+                self.send('PONG :' + n)
+
+            if buf.find('376') != -1 and self.connected:
+                self.entrarCanales()
+                self.connected = False
+
+# Metodo send ------------------------------------------------------------------
+
+    def send(self, msg):
+        print(">>>", msg)
+        msg = msg+"\r\n"
+        self.socket.send(msg.encode("utf-8"))
+
+# Metodo say -------------------------------------------------------------------
+
+    def say(self, msg, to):
+        self.send("PRIVMSG %s :%s" % (to, msg))
+
+# Metodo entrarCanales ---------------------------------------------------------        
+
+    def entrarCanales(self):
+        # self.send("MODE %s +x" % self.nickname)
+        for c in self.channels:
+            self.send("JOIN %s" % c)
+            self.say('hola!', c)
+
+# Fin Class Irc ----------------------------------------------------------------
 
 
-output = "NICK "+NICK+"\n\n"
-output2 = "USER "+IDENT+" "+HOST+" BLA "+REALNAME+" \r\n"
-
-irc.send(output.encode("utf-8"))
-irc.send(output2.encode("utf-8"))
-
-
-while 1:
-    text = irc.recv(2040).decode("utf-8")
-    print(text)
-
-    if text.find("PING") != -1:
-        data_pong = "PONG " + text.split()[1] + "\r\n"
-        irc.send(data_pong.encode("utf-8"))
-
-    if text.find('376') != -1:  # :End of message of the day.
-        data_join = "JOIN " + CHANNEL + "\n"
-        irc.send(data_join.encode("utf-8"))
-
-    if text.find(':!hi') != -1:
-        t = text.split(':!hi')  # Si pones el comando !hi te responde con Hello
-        to = t[1].strip()
-        data = 'PRIVMSG '+CHANNEL+' :Hello '+str(to)+'! \r\n'
-        irc.send(data.encode("utf-8"))
+mi_chat = Irc(HOST, PORT, NICK, IDENT, REALNAME, CHANNELS)
+mi_chat.demonio()

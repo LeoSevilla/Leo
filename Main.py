@@ -1,6 +1,28 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-#
+#       _              ____             _ _ _             #
+#      | |    ___  ___/ ___|  _____   _(_) | | __ _       #
+#      | |   / _ \/ _ \___ \ / _ \ \ / / | | |/ _` |      #
+#      | |__|  __/ (_) |__) |  __/\ V /| | | | (_| |      #
+#      |_____\___|\___/____/ \___| \_/ |_|_|_|\__,_|      #
+#                                                         #
+#        Email: leosevilla50[at]gmail.com                 #
+#       Nombre: Francisco J. Perez                        #  
+#      Codigo : Main.py v. 0.1                            #
+#  Descripcion: Bot en python                             #
+#          Uso: En privado usar el comando !cmd para      #
+#               enviar comandos bajo protocolo irc        #
+#      Ejemplo: !cmd nick otroNick:contraseña             #
+#               !cmd join #Coach                          #
+#               !cmd privmsg #Coach :Hola amigos          #
+#  Desconectar: !quit                                     #
+#   Configurar: MASTER con tu nick                        #
+#               IMPRIME si o no salida por consola        #
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-#
+
 import socket
+import process
 
 HOST = "irc.chathispano.com"
 PORT = 6667
@@ -8,6 +30,8 @@ NICK = "BotPy"
 IDENT = "mi_ident"
 REALNAME = "Mi nombre real"
 CHANNELS = ['#aaabbb', '#coach']
+MASTER = "LeoSevilla"
+IMPRIME = False
 
 # Class Irc --------------------------------------------------------------------
 
@@ -18,10 +42,12 @@ class Irc():
     connected = False
     channels = []
     nickname = ""
+    proc = None
 
-# Metodo constructor -----------------------------------------------------------
+# Medoto constructor-----------------------------------------------------------
 
     def __init__(self, host, port, nick, ident, realname, canales):
+        self.proc = process.Procesos()
         self.socket = socket.socket()
         self.socket.connect((host, port))
         self.channels = canales
@@ -35,7 +61,7 @@ class Irc():
             buf = self.socket.recv(4096).decode()
             if buf == '':
                 continue
-            print("<<<", buf)
+            self.proc.imprimir("<<<", buf, IMPRIME)
 
             if buf.find('PING') != -1:
                 n = buf.split(':')[1]
@@ -48,10 +74,11 @@ class Irc():
 
     def demonio(self):
         while True:
-            buf = self.socket.recv(4096).decode()
+            buf = self.socket.recv(4096).decode("utf-8")
             if buf == '':
                 continue
-            print("<<<", buf)
+            self.proc.imprimir("<<<", buf, IMPRIME)
+            #print("<<<", buf)
             # server ping/pong?
             if buf.find('PING') != -1:
                 n = buf.split(':')[1]
@@ -61,11 +88,15 @@ class Irc():
                 self.entrarCanales()
                 self.connected = False
 
+            proceder = self.proc.msgRecibido(self.socket, buf, MASTER)
+            if proceder != None:
+                self.send(proceder)
+
 # Metodo send ------------------------------------------------------------------
 
     def send(self, msg):
-        print(">>>", msg)
-        msg = msg+"\r\n"
+        self.proc.imprimir(">>>", msg, IMPRIME)
+        msg = str(msg)+"\r\n"
         self.socket.send(msg.encode("utf-8"))
 
 # Metodo say -------------------------------------------------------------------

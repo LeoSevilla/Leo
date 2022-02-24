@@ -48,6 +48,7 @@ class Irc():
 
     def __init__(self, host, port, nick, ident, realname, canales):
         self.proc = process.Procesos()
+        self.proc.inicio()
         self.socket = socket.socket()
         self.socket.connect((host, port))
         self.channels = canales

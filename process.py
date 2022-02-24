@@ -1,17 +1,20 @@
 import re
 import sys
-
+import ahorcado
+import serpiente
 # Class Procesos --------------------------------------------------------------
-
 
 class Procesos():
 
     comuntador = None
+    ahor = None
+    estJuegos = False
 
-# Metodo constructor ----------------------------------------------------------
+# Metodo inicio ---------------------------------------------------------------
 
-    def __init__(self):
-        pass
+    def inicio(self):
+        self.ahorca = ahorcado.Ahorcado()
+        self.serpi = serpiente.Serpiente()
 
 # Metodo imprimir -------------------------------------------------------------
 
@@ -51,6 +54,44 @@ class Procesos():
 # Metodo respuestaCanal --------------------------------------------------------
 
     def respuestaCanal(self, socket, sunick, context, info):
+        print(info[0])
+        print(self.estJuegos)
+
+#------------- Ayuda comendos
         if info == "!help":
             salida = 'PRIVMSG '+context+' :Metodo para hacer funciones\r\n'
             socket.send(salida.encode("utf-8"))
+
+#------------- Config ahorcado
+        elif info == "!ahorcado" and self.estJuegos == False:
+            self.estJuegos = "ahorcado"
+
+#------------- Config serpiente
+        elif info == "!serpiente" and self.estJuegos == False:
+            self.estJuegos = "serpiente"
+
+#------------- Detener juego
+        elif info == "!stop":
+            if self.estJuegos == "ahorcado":
+                self.ahorca.stop(socket, sunick, context,self.estJuegos)
+            elif self.estJuegos == "serpiente":
+                self.serpi.stop(socket, sunick, context,self.estJuegos)
+
+            self.estJuegos = False
+            
+
+
+#------------- Procesar respuestas
+
+        if self.estJuegos != False:
+            self.ahorca.procResp(socket, sunick, context, info, self.estJuegos)
+            self.serpi.procResp(socket, sunick, context, info, self.estJuegos)
+
+
+
+
+
+
+
+
+

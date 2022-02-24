@@ -1,24 +1,26 @@
 import re
 import sys
-import ahorcado
-import serpiente
+import juegos
+
 # Class Procesos --------------------------------------------------------------
+
 
 class Procesos():
 
     comuntador = None
-    ahor = None
     estJuegos = False
 
 # Metodo inicio ---------------------------------------------------------------
 
     def inicio(self):
-        self.ahorca = ahorcado.Ahorcado()
-        self.serpi = serpiente.Serpiente()
+
+        self.ahorca = juegos.Juegos("ahorcado")
+        self.serpi = juegos.Juegos("serpiente")
 
 # Metodo imprimir -------------------------------------------------------------
 
     def imprimir(self, pre, msg, imp):
+
         self.comuntador = imp
         if self.comuntador:
             print(pre, msg)
@@ -26,6 +28,7 @@ class Procesos():
 # Metodo msgRecibido ----------------------------------------------------------
 
     def msgRecibido(self, socket, mensaje, Master):
+
         linea = re.match(r"^:(.*?)\!(.*?)\s+(.*?)\s+(.*?)\s+:(.*?)$", mensaje)
         if linea:
             sunick = linea.group(1)
@@ -40,8 +43,8 @@ class Procesos():
 # Metodo respuestaPrivado -----------------------------------------------------
 
     def respuestaPrivado(self, socket, sunick, info, Master):
-        switch = ""
 
+        switch = ""
         if info == "!quit" and sunick == Master:
             salida = 'PRIVMSG '+sunick+' :Voy saliendo Master '+Master+'\r\n'
             socket.send(salida.encode("utf-8"))
@@ -51,47 +54,33 @@ class Procesos():
             switch = t[1].strip()
             return switch
 
-# Metodo respuestaCanal --------------------------------------------------------
+# Metodo respuestaCanal -------------------------------------------------------
 
     def respuestaCanal(self, socket, sunick, context, info):
-        print(info[0])
-        print(self.estJuegos)
 
-#------------- Ayuda comendos
-        if info == "!help":
-            salida = 'PRIVMSG '+context+' :Metodo para hacer funciones\r\n'
+# ------------- Ayuda del bot
+        if info == ".help":
+            salida = 'PRIVMSG '+context+' :Para dar ayuda general del bot\r\n'
             socket.send(salida.encode("utf-8"))
 
-#------------- Config ahorcado
-        elif info == "!ahorcado" and self.estJuegos == False:
+# ------------- Config ahorcado
+        elif info == "!ahorcado" and self.estJuegos is False:
             self.estJuegos = "ahorcado"
 
-#------------- Config serpiente
-        elif info == "!serpiente" and self.estJuegos == False:
+# ------------- Config serpiente
+        elif info == "!serpiente" and self.estJuegos is False:
             self.estJuegos = "serpiente"
 
-#------------- Detener juego
+# ------------- Detener juego
         elif info == "!stop":
             if self.estJuegos == "ahorcado":
-                self.ahorca.stop(socket, sunick, context,self.estJuegos)
+                self.ahorca.stop(socket, sunick, context, self.estJuegos)
             elif self.estJuegos == "serpiente":
-                self.serpi.stop(socket, sunick, context,self.estJuegos)
-
+                self.serpi.stop(socket, sunick, context, self.estJuegos)
             self.estJuegos = False
-            
 
+# ------------- Procesar respuestas
 
-#------------- Procesar respuestas
-
-        if self.estJuegos != False:
+        if self.estJuegos is not False:
             self.ahorca.procResp(socket, sunick, context, info, self.estJuegos)
             self.serpi.procResp(socket, sunick, context, info, self.estJuegos)
-
-
-
-
-
-
-
-
-

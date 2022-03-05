@@ -3,6 +3,7 @@ from random import randrange
 import re
 import json
 import operator
+import process
 
 # Class Ahorcado --------------------------------------------------------------
 
@@ -22,6 +23,7 @@ class Ahorcado():
     def parar(self):
 
         self.start = False
+        self.tempo.cancel()
 
 # Metodo proceso --------------------------------------------------------------
 
@@ -30,6 +32,7 @@ class Ahorcado():
         if self.start:
             self.ahorcado(socket, sunick, info, context)
         else:
+            self.tempo = process.RepeatableTimer(100,self.funcionTemporizador,([{socket:"hola", context:"adios"}]))
             self.topic(socket, context)
             self.leerpuntos()
             self.leerpregunta(socket, context)
@@ -74,6 +77,7 @@ class Ahorcado():
         socket.send(salida.encode("latin1"))
         salida = 'PRIVMSG '+channel+' :\00303Pista: '+self.respuestaParcial+'\r\n'
         socket.send(salida.encode("utf-8"))
+        self.tempo.start()
         # sock.send('NOTICE '+Master+' :'+self.respuesta+'\r\n')
 
 # Metodo jugadas --------------------------------------------------------------
@@ -165,6 +169,7 @@ class Ahorcado():
                             socket.send(salida.encode("utf-8"))
                             self.addPuntos(sunick)
                             self.writepuntos(socket, sunick, channel)
+                            self.tempo.cancel()
                             self.leerpregunta(socket, channel)
                             return
                     repe = i
@@ -176,6 +181,7 @@ class Ahorcado():
                 socket.send(salida.encode("utf-8"))
                 self.addPuntos(sunick)
                 self.writepuntos(socket, sunick, channel)
+                self.tempo.cancel()
                 self.leerpregunta(socket, channel)
             if infoNormal[0] == "!":
                 if infoNormal.find('!puntos') != -1:
@@ -198,3 +204,10 @@ class Ahorcado():
             else:
                 salida = 'PRIVMSG '+channel+' :\00304Escriba bien el nick '+to+'\r\n'
                 socket.send(salida.encode("utf-8"))
+
+# Metodo funcionTemporizador --------------------------------------------------
+
+    def funcionTemporizador(self, socket, channel):
+        salida = 'PRIVMSG '+channel+' :\00306La respuesta es: \002\0030,01 '+self.respuesta+'\r\n'
+        socket.send(salida.encode("utf-8"))
+        self.leerpregunta(socket, channel)

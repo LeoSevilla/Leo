@@ -4,7 +4,7 @@ import operator
 import subprocess
 from random import randrange
 import re
-
+import process
 
 # Class Serpiente -------------------------------------------------------------
 
@@ -20,6 +20,7 @@ class Serpiente():
     def parar(self):
 
         self.start = False
+        self.tempo.cancel()
         self.escribirPuntos()
 
 # Metodo proceso --------------------------------------------------------------
@@ -29,6 +30,7 @@ class Serpiente():
         if self.start:
             self.serpiente(socket, context, sunick, self.palabra, info)
         else:
+            self.tempo = process.RepeatableTimer(30,self.primeraPalabra,([{socket:"hola", context:"adios"}]))
             self.leerpuntos()
             self.infoAyuda(socket, sunick, context)
             self.primeraPalabra(socket, context)
@@ -71,8 +73,9 @@ class Serpiente():
                     break
                 count += 1
         self.palabra = linea
-        salida = 'PRIVMSG '+channel+' :\00303Palabra : \00304'+linea+'\r\n'
+        salida = 'PRIVMSG '+channel+' :\00303Palabra en curso: \00304'+linea+'\r\n'
         socket.send(salida.encode("utf-8"))
+        self.tempo.start()
 
 # Metodo serpiente ------------------------------------------------------------
 
@@ -103,11 +106,13 @@ class Serpiente():
             parar = 0
             if m1 and m2:
                 if m1.group(1) == m2.group(1):
+                    self.tempo.cancel()
                     self.palabra = toResp
                     punt = len(toResp)
                     self.addPuntos(sock, channel, nick, punt)
-                    salida = 'PRIVMSG '+channel+' :\00303Palabra : \00304'+toResp+'\r\n'
+                    salida = 'PRIVMSG '+channel+' :\00303Palabra en curso: \00304'+toResp+'\r\n'
                     sock.send(salida.encode("utf-8"))
+                    self.tempo.start()
                 else:
                     salida = 'PRIVMSG '+channel+' :'+nick+' \00304Error : No coincide la serpiente\r\n'
                     sock.send(salida.encode("utf-8"))

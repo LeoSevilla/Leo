@@ -48,6 +48,7 @@ class Procesos():
         if info == "!quit" and sunick == Master:
             salida = 'PRIVMSG '+sunick+' :Voy saliendo Master '+Master+'\r\n'
             socket.send(salida.encode("utf-8"))
+            # socket.close()
             sys.exit()
         if Master == sunick and info.find("!cmd") != -1:
             t = info.split('!cmd')

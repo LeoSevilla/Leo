@@ -15,7 +15,7 @@ class Ahorcado():
     pregunta = ""
     intentos = {}
     puntos = {}
-    N_LIN_FILE = 10     # El archivo original tiene 67803 lineas o preguntas 
+    N_LIN_FILE = 10     # El archivo original tiene 67803 lineas o preguntas
 
 # Metodo parar ----------------------------------------------------------------
 
@@ -70,7 +70,7 @@ class Ahorcado():
             if i != ' ':
                 self.respuestaParcial = self.replace_at(self.respuestaParcial, res, '*')
             repe = i
-        salida = 'PRIVMSG '+channel+' :\00304<Pregunta>\00312'+self.pregunta.decode("latin1")+'\r\n'
+        salida = 'PRIVMSG '+channel+' :\00304<Pregunta>\00312'+self.pregunta+'\r\n'
         socket.send(salida.encode("latin1"))
         salida = 'PRIVMSG '+channel+' :\00303Pista: '+self.respuestaParcial+'\r\n'
         socket.send(salida.encode("utf-8"))
@@ -121,7 +121,8 @@ class Ahorcado():
         msg = ""
         for i in myList:
             msg += "\00307"+str(i[0])+"\003->\00306"+str(i[1])+" "
-        sock.send('PRIVMSG '+channel+' :Puntos: '+msg+'\r\n')
+        salida = 'PRIVMSG '+channel+' :Puntos: '+msg+'\r\n'
+        sock.send(salida.encode("utf-8"))
 
 # Metodo topic ----------------------------------------------------------------
 
@@ -136,7 +137,8 @@ class Ahorcado():
             if count == 3:
                 break
         msg += "  !!!A por ellos!!!"
-        sock.send('TOPIC '+channel+' :'+msg+'\r\n')
+        salida = 'TOPIC '+channel+' :'+msg+'\r\n'
+        sock.send(salida.encode("utf-8"))
 
 # Metodo ahorcado -------------------------------------------------------------
 

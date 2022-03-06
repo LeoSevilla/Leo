@@ -1,6 +1,7 @@
 
 import ahorcado
 import serpiente
+import robar
 
 # Class Juegos ----------------------------------------------------------------
 
@@ -17,7 +18,7 @@ class Juegos():
         self.nombreJuego = nombre
         self.juegoAhorcado = ahorcado.Ahorcado()
         self.juegoSerpiente = serpiente.Serpiente()
-
+        self.juegoRobar = robar.Robar()
 # Metodo procResp -------------------------------------------------------------
 
     def procResp(self, socket, sunick, context, info, estado):
@@ -27,6 +28,8 @@ class Juegos():
                 self.juegoAhorcado.proceso(socket, sunick, context, info, estado)
             elif self.nombreJuego == "serpiente":
                 self.juegoSerpiente.proceso(socket, sunick, context, info, estado)
+            elif self.nombreJuego == "robar":
+                self.juegoRobar.proceso(socket, sunick, context, info, estado)
 
         if self.estado is False and estado == self.nombreJuego:
             self.start(True, socket, sunick, context, estado)
@@ -50,3 +53,5 @@ class Juegos():
             self.juegoAhorcado.parar()
         elif estado == "serpiente":
             self.juegoSerpiente.parar()
+        elif estado == "robar":
+            self.juegoRobar.parar()

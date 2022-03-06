@@ -17,6 +17,7 @@ class Procesos():
 
         self.ahorca = juegos.Juegos("ahorcado")
         self.serpi = juegos.Juegos("serpiente")
+        self.robar = juegos.Juegos("robar")
 
 # Metodo imprimir -------------------------------------------------------------
 
@@ -82,12 +83,18 @@ class Procesos():
         elif info == "!serpiente" and self.estJuegos is False:
             self.estJuegos = "serpiente"
 
+# ------------- Config robarº
+        elif info == "!robar" and self.estJuegos is False:
+            self.estJuegos = "robar"
+
 # ------------- Detener juego
         elif info == "!stop":
             if self.estJuegos == "ahorcado":
                 self.ahorca.stop(socket, sunick, context, self.estJuegos)
             elif self.estJuegos == "serpiente":
                 self.serpi.stop(socket, sunick, context, self.estJuegos)
+            elif self.estJuegos == "robar":
+                self.robar.stop(socket, sunick, context, self.estJuegos)
             self.estJuegos = False
 
 # ------------- Procesar respuestas
@@ -95,6 +102,7 @@ class Procesos():
         if self.estJuegos is not False:
             self.ahorca.procResp(socket, sunick, context, info, self.estJuegos)
             self.serpi.procResp(socket, sunick, context, info, self.estJuegos)
+            self.robar.procResp(socket, sunick, context, info, self.estJuegos)
 
 # Clase RepeatableTimer--------------------------------------------------------
 

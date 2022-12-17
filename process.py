@@ -1,6 +1,8 @@
 import re
 import sys
 import juegos
+import comandos
+import palabras
 from threading import Timer
 
 # Class Procesos --------------------------------------------------------------
@@ -18,6 +20,8 @@ class Procesos():
         self.ahorca = juegos.Juegos("ahorcado")
         self.serpi = juegos.Juegos("serpiente")
         self.robar = juegos.Juegos("robar")
+        self.comandos = comandos.Comandos()
+        self.palabras = palabras.Palabras()
 
 # Metodo imprimir -------------------------------------------------------------
 
@@ -71,8 +75,8 @@ class Procesos():
     def respuestaCanal(self, socket, sunick, context, info):
 
 # ------------- Ayuda del bot
-        if info == ".help":
-            salida = 'PRIVMSG '+context+' :Para dar ayuda general del bot\r\n'
+        if info == "!help":
+            salida = 'PRIVMSG '+context+' :Para info ponga !ayuda\r\n'
             socket.send(salida.encode("utf-8"))
 
 # ------------- Config ahorcado
@@ -97,12 +101,22 @@ class Procesos():
                 self.robar.stop(socket, sunick, context, self.estJuegos)
             self.estJuegos = False
 
+# ------------- Procesar otras opciones
+        else:
+            if info[0] == "!":
+                self.comandos.respuesta(socket, sunick, context, info)
+
 # ------------- Procesar respuestas
 
         if self.estJuegos is not False:
-            self.ahorca.procResp(socket, sunick, context, info, self.estJuegos)
-            self.serpi.procResp(socket, sunick, context, info, self.estJuegos)
-            self.robar.procResp(socket, sunick, context, info, self.estJuegos)
+            if self.estJuegos == "ahorcado":
+                self.ahorca.procResp(socket, sunick, context, info, self.estJuegos)
+            elif self.estJuegos == "serpiente":
+                self.serpi.procResp(socket, sunick, context, info, self.estJuegos)
+            elif self.estJuegos == "robar":
+                self.robar.procResp(socket, sunick, context, info, self.estJuegos)
+        else:
+            self.palabras.respuesta(socket, sunick, context, info)
 
 # Clase RepeatableTimer--------------------------------------------------------
 

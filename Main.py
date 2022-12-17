@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-#
 #       _              ____             _ _ _             #
@@ -75,7 +75,7 @@ class Irc():
 
     def demonio(self):
         while True:
-            buf = self.socket.recv(4096).decode("utf-8")
+            buf = self.socket.recv(4096).decode("utf-8",errors='ignore')
             if buf == '':
                 continue
             self.proc.imprimir("<<<", buf, IMPRIME)

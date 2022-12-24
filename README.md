@@ -20,3 +20,4 @@ Se puede buscar información para crear el diccionario en estás páginas:
 [github](https://github.com/JorgeDuenasLerin/diccionario-espanol-txt)  
 [duenaslerin](https://duenaslerin.com/diccionario-palabras-espanol-en-texto-script/)
 
+Añadido un segundo Main, el MainZnc.py, que es para usasr con ZNC's'
